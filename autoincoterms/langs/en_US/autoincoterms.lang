@@ -1,0 +1,13 @@
+# Translation file
+
+# Module label 'ModuleAutoIncotermsName'
+ModuleautoincotermsName = Auto Incoterms
+# Module description 'ModuleAutoIncotermsDesc'
+ModuleautoincotermsDesc = Auto Incoterms
+
+#
+# Admin page
+#
+AutoIncotermsSetup = Auto Incoterms
+Settings = Settings
+AutoIncotermsSetupPage = Options
