@@ -22,11 +22,74 @@
  */
 
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
 
 /**
  * Class for AutoIncoterms
  */
 class AutoIncoterms
 {
+	/**
+	 * @var DoliDB Database handler
+	 */
+	public $db;
 
+	/**
+	 * @var string Error message
+	 */
+	public $error;
+
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDB $db Database handler
+	 */
+	public function __construct($db)
+	{
+		$this->db = $db;
+	}
+
+	/**
+	 * Set incoterms location for a client based on their city and country
+	 *
+	 * @param int $clientId ID of the client (third party)
+	 * @return int 1 if success with city and country, 2 if success with city only, 3 if success with country only, -1 if client not found or update failed, -2 if no city and no country
+	 */
+	public function setIncotermsLocationFromClientAddress($clientId)
+	{
+		$societe = new Societe($this->db);
+
+		$result = $societe->fetch($clientId);
+		if ($result <= 0) {
+			$this->error = 'Client not found';
+			return -1;
+		}
+
+		$hasCity = !empty($societe->town);
+		$hasCountry = !empty($societe->country);
+
+		if (!$hasCity && !$hasCountry) {
+			$this->error = 'Client has no city and no country';
+			return -2;
+		}
+
+		if ($hasCity && $hasCountry) {
+			$location = $societe->town.', '.$societe->country;
+			$returnCode = 1;
+		} elseif ($hasCity) {
+			$location = $societe->town;
+			$returnCode = 2;
+		} else {
+			$location = $societe->country;
+			$returnCode = 3;
+		}
+
+		$result = $societe->setIncoterms($societe->fk_incoterms, $location);
+		if ($result < 0) {
+			$this->error = $societe->error;
+			return -1;
+		}
+
+		return $returnCode;
+	}
 }
