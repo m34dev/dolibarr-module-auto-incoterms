@@ -25,7 +25,7 @@ package-job:
     - mkdir artifacts
     - cp LICENSE.md autoincoterms/LICENSE.md
     - cp README.md autoincoterms/README.md
-    - cp CHANGELOG.md autoincoterms/Changelog.md
+    - cp CHANGELOG.md autoincoterms/ChangeLog.md
     - 'zip -r "./artifacts/module_autoincoterms-$CI_COMMIT_TAG.zip" ./autoincoterms/'
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "artifacts/module_autoincoterms-$CI_COMMIT_TAG.zip" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/autoincoterms/${CI_COMMIT_TAG}/module_autoincoterms-$CI_COMMIT_TAG.zip"'
     - echo "autoincoterms module packaged."
