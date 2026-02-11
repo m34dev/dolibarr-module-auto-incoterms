@@ -140,6 +140,8 @@ class ActionsAutoIncoterms
 	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
 	 */
 	function loadStaticObject($parameters, &$object, &$action, $hookmanager) {
+		global $langs;
+		$langs->load("autoincoterms@autoincoterms");
 		return 0;
 	}
 
@@ -156,11 +158,10 @@ class ActionsAutoIncoterms
 	{
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
-
-		$contexts = explode(':', $parameters['context']);
+		
 		$allowedContexts = array('propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
 
-		if (array_intersect($allowedContexts, $contexts)) {
+		if (array_intersect($allowedContexts, $hookmanager->contextarray)) {
 			$url = $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=autoincoterms&token='.newToken();
 			print dolGetButtonAction('', $langs->trans("RefreshAutoIncoterms"), 'default', $url, '', 1);
 		}
@@ -183,11 +184,10 @@ class ActionsAutoIncoterms
 		$langs->load("autoincoterms@autoincoterms");
 
 		if ($action === 'autoincoterms') {
-			$contexts = explode(':', $parameters['context']);
 			$allowedContexts = array('propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
 
-			if (array_intersect($allowedContexts, $contexts)) {
-				$socid = !empty($object->socid) ? $object->socid : $object->fk_soc;
+			if (array_intersect($allowedContexts, $hookmanager->contextarray)) {
+				$socid = !empty($object->socid) ? $object->socid : "";
 
 				$autoIncoterms = new AutoIncoterms($this->db);
 				$result = $autoIncoterms->setIncotermsLocationFromClientAddress($socid);

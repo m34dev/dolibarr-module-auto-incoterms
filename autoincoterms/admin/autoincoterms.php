@@ -16,9 +16,9 @@
  */
 
 /**
- * \file    autoincoterms/admin/setup.php
+ * \file    autoincoterms/admin/autoincoterms.php
  * \ingroup autoincoterms
- * \brief   autoincoterms setup page.
+ * \brief   AutoIncoterms admin page
  */
 
 // Load Dolibarr environment
@@ -55,8 +55,8 @@ if (!$res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT."/core/lib/admin.lib.php";
-require_once DOL_DOCUMENT_ROOT.'/core/lib/modulebuilder.lib.php';
 require_once '../lib/autoincoterms.lib.php';
+require_once '../class/autoincoterms.class.php';
 
 /**
  * @var Conf $conf
@@ -69,48 +69,22 @@ require_once '../lib/autoincoterms.lib.php';
 // Translations
 $langs->loadLangs(array("admin", "autoincoterms@autoincoterms"));
 
-// Initialize a technical object to manage hooks of page. Note that conf->hooks_modules contains an array of hook context
-/** @var HookManager $hookmanager */
-$hookmanager->initHooks(array('autoincotermssetup', 'globalsetup'));
+// Initialize a technical object to manage hooks of page
+$hookmanager->initHooks(array('autoincotermsadmin'));
 
 // Parameters
 $action = GETPOST('action', 'aZ09');
-$backtopage = GETPOST('backtopage', 'alpha');
-$modulepart = GETPOST('modulepart', 'aZ09');	// Used by actions_setmoduleoptions.inc.php
-
-$error = 0;
-$setupnotempty = 0;
 
 // Access control
 if (!$user->admin) {
 	accessforbidden();
 }
-
-
-// Set this to 1 to use the factory to manage constants. Warning, the generated module will be compatible with version v15+ only
-$useFormSetup = 1;
-
-if (!class_exists('FormSetup')) {
-	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formsetup.class.php';
-}
-$formSetup = new FormSetup($db);
-
-// Access control
-if (!$user->admin) {
-	accessforbidden();
-}
-
-// Enter here all parameters in your setup page
-
-$setupnotempty += count($formSetup->items);
 
 /*
  * Actions
  */
 
-include DOL_DOCUMENT_ROOT.'/core/actions_setmoduleoptions.inc.php';
 
-$action = 'edit';
 
 /*
  * View
@@ -119,31 +93,23 @@ $action = 'edit';
 $form = new Form($db);
 
 $help_url = '';
-$title = "autoincotermsSetup";
+$title = "AutoIncoterms";
 
-llxHeader('', $langs->trans($title), $help_url, '', 0, 0, '', '', '', 'mod-autoincoterms page-admin');
+llxHeader('', $langs->trans($title), $help_url, '', 0, 0, '', '', '', 'mod-autoincoterms page-admin-autoincoterms');
 
 // Subheader
-$linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
+$linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 
 print load_fiche_titre($langs->trans($title), $linkback, 'object_autoincoterms@autoincoterms');
 
 // Configuration header
 $head = autoincotermsAdminPrepareHead();
-print dol_get_fiche_head($head, 'Setup', $langs->trans($title), -1, "setup");
+print dol_get_fiche_head($head, 'autoincoterms', $langs->trans($title), -1, "autoincoterms@autoincoterms");
 
-// Setup page goes here
+// Page content goes here
+print '<span class="opacitymedium">'.$langs->trans("AutoIncotermsPageDesc").'</span><br><br>';
 
-echo '<span class="opacitymedium">'.$langs->trans("AutoIncotermsSetupPage").'</span><br><br>';
 
-if (!empty($formSetup->items)) {
-	print $formSetup->generateOutput(true);
-	print '<br>';
-}
-
-if (empty($setupnotempty)) {
-	print '<br>'.$langs->trans("NothingToSetup");
-}
 
 // Page end
 print dol_get_fiche_end();
