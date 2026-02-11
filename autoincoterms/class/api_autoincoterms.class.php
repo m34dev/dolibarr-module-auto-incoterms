@@ -46,48 +46,33 @@ class AutoIncotermsApi extends DolibarrApi
 		$this->db = $db;
 	}
 	
-	
-	/* BEGIN MODULEBUILDER API MYOBJECT */
-	
 	/**
-	 * Get Dolibarr Module Template
+	 * Update incoterms for a third party based on its address
 	 *
-	 * Return Dolibarr Module Template
+	 * @param	int		$id		Third party ID
+	 * @return	array			Result with incoterms code and location
 	 *
-	 * @param	string		$ref	Ref of Dolibarr Module Template
-	 * @return	Int					Dolibarr Module Templatev
-	 *
-	 * @url	GET autoincoterms/{ref}
+	 * @url	PUT {id}/incoterms
 	 *
 	 * @throws RestException 403 Not allowed
-	 * @throws RestException 404 Not found
-	 * @throws RestException 500 Internal server error
+	 * @throws RestException 500 Error
 	 */
-	public function get($ref)
+	public function updateThirdPartyIncoterms($id)
 	{
-		if (!DolibarrApiAccess::$user->hasRight('produit', 'lire')) {
-			throw new RestException(403);
+		if (!DolibarrApiAccess::$user->hasRight('societe', 'creer')) {
+			throw new RestException(403, 'Not allowed to edit third parties');
 		}
-		if (!DolibarrApiAccess::$user->hasRight('stock', 'lire')) {
-			throw new RestException(403);
+
+		$autoIncoterms = new AutoIncoterms($this->db);
+		$result = $autoIncoterms->setIncotermsLocationFromClientAddress($id);
+
+		if ($result <= 0) {
+			throw new RestException(500, $autoIncoterms->error);
 		}
-		$product = new Product($this->db);
-		$result = $product->fetch(0, $ref);
-		if ($result == -1) {
-			throw new RestException(404, 'Product not found');
-		}
-		$product_id = $product->id;
-		$result = 1;
-		if ($result == -1) {
-			throw new RestException(404, 'Product not found');
-		}
-		if ($result == -2) {
-			throw new RestException(500, 'Product is a service');
-		}
-		if ($result == -3) {
-			throw new RestException(500, 'Product has no subproducts');
-		}
-		
-		return $result;
+
+		return array(
+			'success' => true,
+			'socid' => $id
+		);
 	}
 }
