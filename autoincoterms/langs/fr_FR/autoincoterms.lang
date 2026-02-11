@@ -39,6 +39,7 @@ AutoIncotermsUpdateAllDefaultButton = Remplacer
 AutoIncotermsResetAllClientsTitle = Réinitialiser tous les incoterms
 AutoIncotermsResetAllClientsDesc = Effacer les incoterms de tous les clients et prospects actifs (mettre à vide)
 AutoIncotermsResetAllClientsButton = Réinitialiser
+AutoIncotermsResetAllConfirm = Êtes-vous sûr de vouloir réinitialiser les incoterms de tous les clients et prospects actifs ? Cette action est irréversible.
 AutoIncotermsResetAllSuccess = %s incoterms client(s) réinitialisé(s) avec succès
 AutoIncotermsResetAllErrors = %s incoterms client(s) n'ont pas pu être réinitialisé(s)
 AutoIncotermsUpdateAllSuccess = %s incoterms client(s) mis à jour avec succès

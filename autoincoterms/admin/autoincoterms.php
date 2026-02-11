@@ -184,6 +184,19 @@ $title = "AutoIncoterms";
 
 llxHeader('', $langs->trans($title), $help_url, '', 0, 0, '', '', '', 'mod-autoincoterms page-admin-autoincoterms');
 
+// Confirmation dialog for reset
+if ($action === 'confirm_resetallclients') {
+	print $form->formconfirm(
+		$_SERVER['PHP_SELF'],
+		$langs->trans('AutoIncotermsResetAllClientsTitle'),
+		$langs->trans('AutoIncotermsResetAllConfirm'),
+		'resetallclients',
+		'',
+		'',
+		1
+	);
+}
+
 // Subheader
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 
@@ -228,7 +241,7 @@ print '<br>';
 
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.newToken().'">';
-print '<input type="hidden" name="action" value="resetallclients">';
+print '<input type="hidden" name="action" value="confirm_resetallclients">';
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
 print '<td>'.$langs->trans("AutoIncotermsResetAllClientsTitle").'</td>';

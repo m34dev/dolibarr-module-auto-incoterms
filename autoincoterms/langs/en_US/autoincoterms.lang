@@ -39,6 +39,7 @@ AutoIncotermsUpdateAllDefaultButton = Override
 AutoIncotermsResetAllClientsTitle = Reset all incoterms
 AutoIncotermsResetAllClientsDesc = Clear incoterms for all active clients and prospects (set to empty)
 AutoIncotermsResetAllClientsButton = Reset
+AutoIncotermsResetAllConfirm = Are you sure you want to reset incoterms for all active clients and prospects? This action cannot be undone.
 AutoIncotermsResetAllSuccess = %s client(s) incoterms reset successfully
 AutoIncotermsResetAllErrors = %s client(s) incoterms could not be reset
 AutoIncotermsUpdateAllSuccess = %s client(s) incoterms updated successfully
