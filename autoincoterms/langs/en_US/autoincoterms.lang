@@ -8,9 +8,11 @@ ModuleautoincotermsDesc = Auto Incoterms
 #
 # Admin page
 #
+AutoIncoterms = Auto Incoterms
 AutoIncotermsSetup = Auto Incoterms
 Settings = Settings
 AutoIncotermsSetupPage = Options
+AutoIncotermsPage = Mass actions
 RefreshAutoIncoterms = Refresh Auto Incoterms
 AutoIncotermsClientSuccess = Client incoterms updated successfully
 AutoIncotermsDocumentSuccess = Document incoterms updated successfully
@@ -18,8 +20,21 @@ AutoIncotermsDefaultIncoterm = Default Incoterm
 AutoIncotermsDefaultIncotermHelp = Incoterm to use when the client has no incoterm set
 
 #
+# Mass actions
+#
+AutoIncotermsUpdateAllClientsTitle = Update all incoterms
+AutoIncotermsUpdateAllClientsDesc = Update incoterms free text with location for all active clients and prospects based on their address
+AutoIncotermsUpdateAllClientsButton = Update
+AutoIncotermsUpdateAllDefaultDesc = Override incoterms for all active clients and prospects with the default incoterm from module settings
+AutoIncotermsUpdateAllDefaultButton = Override
+AutoIncotermsUpdateAllSuccess = %s client(s) updated successfully
+AutoIncotermsUpdateAllErrors = %s client(s) could not be updated
+
+#
 # Error messages
 #
+AutoIncotermsErrorNoDefault = No default incoterm configured in module settings
+AutoIncotermsErrorDatabase = Database error
 AutoIncotermsErrorClientNotFound = Client not found
 AutoIncotermsErrorNotClientOrProspect = Third party is not a client or prospect
 AutoIncotermsErrorNoIncotermAndNoDefault = No incoterm set on client and no default incoterm configured

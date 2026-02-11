@@ -8,9 +8,11 @@ ModuleautoincotermsDesc = Auto Incoterms
 #
 # Admin page
 #
+AutoIncoterms = Auto Incoterms
 AutoIncotermsSetup = Auto Incoterms
 Settings = Settings
 AutoIncotermsSetupPage = Options
+AutoIncotermsPage = Actions de masse
 RefreshAutoIncoterms = Actualiser les Incoterms
 AutoIncotermsClientSuccess = Incoterms du client mis à jour avec succès
 AutoIncotermsDocumentSuccess = Incoterms du document mis à jour avec succès
@@ -18,8 +20,21 @@ AutoIncotermsDefaultIncoterm = Incoterm par défaut
 AutoIncotermsDefaultIncotermHelp = Incoterm à utiliser lorsque le client n'a pas d'incoterm défini
 
 #
+# Actions de masse
+#
+AutoIncotermsUpdateAllClientsTitle = Mettre à jour tous les incoterms
+AutoIncotermsUpdateAllClientsDesc = Mettre à jour le texte libre des incoterms avec le lieu pour tous les clients et prospects actifs en fonction de leur adresse
+AutoIncotermsUpdateAllClientsButton = Mettre à jour
+AutoIncotermsUpdateAllDefaultDesc = Remplacer les incoterms de tous les clients et prospects actifs par l'incoterm par défaut des paramètres du module
+AutoIncotermsUpdateAllDefaultButton = Remplacer
+AutoIncotermsUpdateAllSuccess = %s client(s) mis à jour avec succès
+AutoIncotermsUpdateAllErrors = %s client(s) n'ont pas pu être mis à jour
+
+#
 # Messages d'erreur
 #
+AutoIncotermsErrorNoDefault = Aucun incoterm par défaut configuré dans les paramètres du module
+AutoIncotermsErrorDatabase = Erreur de base de données
 AutoIncotermsErrorClientNotFound = Client introuvable
 AutoIncotermsErrorNotClientOrProspect = Le tiers n'est ni un client ni un prospect
 AutoIncotermsErrorNoIncotermAndNoDefault = Aucun incoterm défini sur le client et aucun incoterm par défaut configuré

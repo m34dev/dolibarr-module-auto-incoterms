@@ -84,13 +84,76 @@ if (!$user->admin) {
  * Actions
  */
 
+if ($action === 'updateallclients') {
+	if (!verifCond(newToken() == GETPOST('token', 'alpha'))) {
+		accessforbidden('Bad value for CSRF token');
+	}
 
+	$autoIncoterms = new AutoIncoterms($db);
+	$results = $autoIncoterms->updateIncotermsForAllActiveClients();
+
+	if ($results === -1) {
+		setEventMessages($langs->trans('AutoIncotermsErrorDatabase'), null, 'errors');
+	} else {
+		$successCount = $results['success'];
+		$errorCount = count($results['errors']);
+		if ($successCount > 0) {
+			setEventMessages($langs->trans('AutoIncotermsUpdateAllSuccess', $successCount), null, 'mesgs');
+		}
+		if ($errorCount > 0) {
+			setEventMessages($langs->trans('AutoIncotermsUpdateAllErrors', $errorCount), null, 'warnings');
+		}
+	}
+
+	$action = '';
+}
+
+if ($action === 'updateallclientsdefault') {
+	if (!verifCond(newToken() == GETPOST('token', 'alpha'))) {
+		accessforbidden('Bad value for CSRF token');
+	}
+
+	$defaultIncotermsId = getDolGlobalInt('AUTOINCOTERMS_DEFAULT_INCOTERM');
+	if (empty($defaultIncotermsId)) {
+		setEventMessages($langs->trans('AutoIncotermsErrorNoDefault'), null, 'errors');
+	} else {
+		$autoIncoterms = new AutoIncoterms($db);
+		$results = $autoIncoterms->updateIncotermsForAllActiveClients($defaultIncotermsId);
+
+		if ($results === -1) {
+			setEventMessages($langs->trans('AutoIncotermsErrorDatabase'), null, 'errors');
+		} else {
+			$successCount = $results['success'];
+			$errorCount = count($results['errors']);
+			if ($successCount > 0) {
+				setEventMessages($langs->trans('AutoIncotermsUpdateAllSuccess', $successCount), null, 'mesgs');
+			}
+			if ($errorCount > 0) {
+				setEventMessages($langs->trans('AutoIncotermsUpdateAllErrors', $errorCount), null, 'warnings');
+			}
+		}
+	}
+
+	$action = '';
+}
 
 /*
  * View
  */
 
 $form = new Form($db);
+
+// Fetch default incoterm code for display
+$defaultIncotermCode = '';
+$defaultIncotermId = getDolGlobalInt('AUTOINCOTERMS_DEFAULT_INCOTERM');
+if ($defaultIncotermId > 0) {
+	$sql = "SELECT code FROM ".$db->prefix()."c_incoterms WHERE rowid = ".((int) $defaultIncotermId);
+	$resql = $db->query($sql);
+	if ($resql && ($obj = $db->fetch_object($resql))) {
+		$defaultIncotermCode = $obj->code;
+	}
+	$db->free($resql);
+}
 
 $help_url = '';
 $title = "AutoIncoterms";
@@ -104,12 +167,30 @@ print load_fiche_titre($langs->trans($title), $linkback, 'object_autoincoterms@a
 
 // Configuration header
 $head = autoincotermsAdminPrepareHead();
-print dol_get_fiche_head($head, 'autoincoterms', $langs->trans($title), -1, "autoincoterms@autoincoterms");
+print dol_get_fiche_head($head, 'autoincoterms', $langs->trans($title), -1, "setup");
 
 // Page content goes here
-print '<span class="opacitymedium">'.$langs->trans("AutoIncotermsPageDesc").'</span><br><br>';
+print '<span class="opacitymedium">'.$langs->trans("AutoIncotermsPage").'</span><br><br>';
 
-
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.newToken().'">';
+print '<input type="hidden" name="action" value="updateallclients">';
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>'.$langs->trans("AutoIncotermsUpdateAllClientsTitle").'</td>';
+print '<td class="right"></td>';
+print '</tr>';
+print '<tr class="oddeven">';
+print '<td>'.$langs->trans("AutoIncotermsUpdateAllClientsDesc").'</td>';
+print '<td class="right"><input type="submit" class="button" value="'.$langs->trans("AutoIncotermsUpdateAllClientsButton").'"></td>';
+print '</tr>';
+print '<tr class="oddeven">';
+print '<td>'.$langs->trans("AutoIncotermsUpdateAllDefaultDesc").(!empty($defaultIncotermCode) ? ': <strong>'.$defaultIncotermCode.'</strong>' : '').'</td>';
+$defaultButtonLabel = $langs->trans("AutoIncotermsUpdateAllDefaultButton");
+print '<td class="right"><input type="submit" class="button" value="'.$defaultButtonLabel.'"'.($defaultIncotermId > 0 ? '' : ' disabled').'></td>';
+print '</tr>';
+print '</table>';
+print '</form>';
 
 // Page end
 print dol_get_fiche_end();
