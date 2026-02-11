@@ -53,12 +53,14 @@ class AutoIncoterms
 	/**
 	 * Set incoterms location for a client based on their city and country
 	 *
-	 * @param int $clientId ID of the client (third party)
-	 * @return int 1 if success with city and country, 2 if success with city only, 3 if success with country only, -1 if client not found or update failed, -2 if no city and no country, -3 if third party is not a client or prospect
+	 * @param int      $clientId     ID of the client (third party)
+	 * @param int|null $incotermsId  Optional incoterms ID to set (null to keep existing)
+	 * @param string|null $locationText Optional location text to set (null to derive from client address)
+	 * @return int 1 if success with city and country, 2 if success with city only, 3 if success with country only, 4 if success with provided location text, -1 if client not found or update failed, -2 if no city and no country, -3 if third party is not a client or prospect
 	 */
-	public function setIncotermsLocationFromClientAddress($clientId)
+	public function setIncotermsLocationFromClientAddress($clientId, $incotermsId = null, $locationText = null)
 	{
-		dol_syslog(__METHOD__." clientId=".$clientId, LOG_DEBUG);
+		dol_syslog(__METHOD__." clientId=".$clientId." incotermsId=".$incotermsId." locationText=".$locationText, LOG_DEBUG);
 
 		$societe = new Societe($this->db);
 
@@ -75,29 +77,38 @@ class AutoIncoterms
 			return -3;
 		}
 
-		$hasCity = !empty($societe->town);
-		$hasCountry = !empty($societe->country);
+		// Use provided incoterms ID or keep existing
+		$fkIncoterms = ($incotermsId !== null) ? $incotermsId : $societe->fk_incoterms;
 
-		if (!$hasCity && !$hasCountry) {
-			$this->error = 'Client has no city and no country';
-			dol_syslog(__METHOD__." error=".$this->error, LOG_WARNING);
-			return -2;
-		}
-
-		if ($hasCity && $hasCountry) {
-			$location = $societe->town.', '.$societe->country;
-			$returnCode = 1;
-		} elseif ($hasCity) {
-			$location = $societe->town;
-			$returnCode = 2;
+		// Use provided location text or derive from client address
+		if ($locationText !== null) {
+			$location = $locationText;
+			$returnCode = 4;
 		} else {
-			$location = $societe->country;
-			$returnCode = 3;
+			$hasCity = !empty($societe->town);
+			$hasCountry = !empty($societe->country);
+
+			if (!$hasCity && !$hasCountry) {
+				$this->error = 'Client has no city and no country';
+				dol_syslog(__METHOD__." error=".$this->error, LOG_WARNING);
+				return -2;
+			}
+
+			if ($hasCity && $hasCountry) {
+				$location = $societe->town.', '.$societe->country;
+				$returnCode = 1;
+			} elseif ($hasCity) {
+				$location = $societe->town;
+				$returnCode = 2;
+			} else {
+				$location = $societe->country;
+				$returnCode = 3;
+			}
 		}
 
-		dol_syslog(__METHOD__." setting location=".$location, LOG_DEBUG);
+		dol_syslog(__METHOD__." setting incotermsId=".$fkIncoterms." location=".$location, LOG_DEBUG);
 
-		$result = $societe->setIncoterms($societe->fk_incoterms, $location);
+		$result = $societe->setIncoterms($fkIncoterms, $location);
 		if ($result < 0) {
 			$this->error = $societe->error;
 			dol_syslog(__METHOD__." error=".$this->error, LOG_ERR);
@@ -112,12 +123,14 @@ class AutoIncoterms
 	/**
 	 * Update incoterms location for a list of clients
 	 *
-	 * @param array $clientIds Array of client IDs
+	 * @param array       $clientIds    Array of client IDs
+	 * @param int|null    $incotermsId  Optional incoterms ID to set for all clients (null to keep existing)
+	 * @param string|null $locationText Optional location text to set for all clients (null to derive from client address)
 	 * @return array Associative array with results: 'success' => count, 'errors' => array of [id => error code]
 	 */
-	public function updateIncotermsForClients($clientIds)
+	public function updateIncotermsForClients($clientIds, $incotermsId = null, $locationText = null)
 	{
-		dol_syslog(__METHOD__." called with ".count($clientIds)." clients", LOG_DEBUG);
+		dol_syslog(__METHOD__." called with ".count($clientIds)." clients, incotermsId=".$incotermsId." locationText=".$locationText, LOG_DEBUG);
 
 		$results = array(
 			'success' => 0,
@@ -125,7 +138,7 @@ class AutoIncoterms
 		);
 
 		foreach ($clientIds as $clientId) {
-			$result = $this->setIncotermsLocationFromClientAddress($clientId);
+			$result = $this->setIncotermsLocationFromClientAddress($clientId, $incotermsId, $locationText);
 			if ($result > 0) {
 				$results['success']++;
 			} else {
@@ -141,11 +154,13 @@ class AutoIncoterms
 	/**
 	 * Update incoterms location for all active clients and prospects
 	 *
+	 * @param int|null    $incotermsId  Optional incoterms ID to set for all clients (null to keep existing)
+	 * @param string|null $locationText Optional location text to set for all clients (null to derive from client address)
 	 * @return array|int Associative array with results: 'success' => count, 'errors' => array of [id => error code], or -1 on database error
 	 */
-	public function updateIncotermsForAllActiveClients()
+	public function updateIncotermsForAllActiveClients($incotermsId = null, $locationText = null)
 	{
-		dol_syslog(__METHOD__." called", LOG_DEBUG);
+		dol_syslog(__METHOD__." called, incotermsId=".$incotermsId." locationText=".$locationText, LOG_DEBUG);
 
 		$clientIds = $this->fetchAllActiveClientIds();
 		if ($clientIds === -1) {
@@ -153,7 +168,7 @@ class AutoIncoterms
 			return -1;
 		}
 
-		return $this->updateIncotermsForClients($clientIds);
+		return $this->updateIncotermsForClients($clientIds, $incotermsId, $locationText);
 	}
 
 	/**
