@@ -80,11 +80,8 @@ class ActionsAutoIncoterms
 	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
 	 */
 	function formObjectOptions($parameters, &$object, &$action, $hookmanager) {
-		global $db, $langs;
+		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
-		if($action == 'view' || $action == '') {
-		
-		}
 		return 0;
 	}
 	
@@ -98,12 +95,9 @@ class ActionsAutoIncoterms
 	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
 	 */
 	function printFieldListOption($parameters, &$object, &$action, $hookmanager) {
-		if(in_array('productservicelist', $hookmanager->contextarray)) {
-			$this->resprints = '<td class="liste_titre">&nbsp</td>';
-			return 0;
-		} else {
-			return 0;
-		}
+		global $langs;
+		$langs->load("autoincoterms@autoincoterms");
+		return 0;
 	}
 
 	/**
@@ -133,11 +127,7 @@ class ActionsAutoIncoterms
 	function printFieldListValue($parameters, &$object, &$action, $hookmanager) {
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
-		if(in_array('productservicelist', $hookmanager->contextarray) || in_array('productcompositioncard', $hookmanager->contextarray)) {
-			return 1;
-		} else {
-			return 0;
-		}
+		return 0;
 	}
 
 	/**
@@ -150,6 +140,68 @@ class ActionsAutoIncoterms
 	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
 	 */
 	function loadStaticObject($parameters, &$object, &$action, $hookmanager) {
+		return 0;
+	}
+
+	/**
+	 * Add action button on propal, order, invoice cards
+	 *
+	 * @param	array			$parameters		Hook metadatas (context, etc...)
+	 * @param	CommonObject	&$object		The object to process (Propal, Commande, Facture)
+	 * @param	string			&$action		Current action (if set). Generally create or edit or null
+	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
+	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
+	 */
+	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs;
+		$langs->load("autoincoterms@autoincoterms");
+
+		$contexts = explode(':', $parameters['context']);
+		$allowedContexts = array('propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
+
+		if (array_intersect($allowedContexts, $contexts)) {
+			$url = $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=autoincoterms&token='.newToken();
+			print dolGetButtonAction('', $langs->trans("RefreshAutoIncoterms"), 'default', $url, '', 1);
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Execute action from hook
+	 *
+	 * @param	array			$parameters		Hook metadatas (context, etc...)
+	 * @param	CommonObject	&$object		The object to process (Propal, Commande, Facture, etc.)
+	 * @param	string			&$action		Current action (if set). Generally create or edit or null
+	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
+	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
+	 */
+	function doActions($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs;
+		$langs->load("autoincoterms@autoincoterms");
+
+		if ($action === 'autoincoterms') {
+			$contexts = explode(':', $parameters['context']);
+			$allowedContexts = array('propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
+
+			if (array_intersect($allowedContexts, $contexts)) {
+				$socid = !empty($object->socid) ? $object->socid : $object->fk_soc;
+
+				$autoIncoterms = new AutoIncoterms($this->db);
+				$result = $autoIncoterms->setIncotermsLocationFromClientAddress($socid);
+
+				if ($result > 0) {
+					setEventMessages($langs->trans("AutoIncotermsSuccess"), null, 'mesgs');
+				} else {
+					setEventMessages($autoIncoterms->error, null, 'errors');
+				}
+
+				$action = '';
+			}
+		}
+
 		return 0;
 	}
 }
