@@ -118,10 +118,11 @@ class modautoincoterms extends DolibarrModules
 			/* BEGIN MODULEBUILDER HOOKSCONTEXTS */
 			'hooks' => array(
 				   'data' => array(
-				       'productcard',
-					   'stockproductcard',
-				       'productcompositioncard',
-					   'productservicelist'
+				       'propalcard',
+					   'ordercard',
+				       'expeditioncard',
+					   'invoicecard',
+					   'invoicereccard'
 				   ),
 				   'entity' => '0',
 			),
