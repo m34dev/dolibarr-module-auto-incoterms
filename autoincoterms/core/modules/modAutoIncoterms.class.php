@@ -119,6 +119,9 @@ class modAutoIncoterms extends DolibarrModules
 			'hooks' => array(
 				   'data' => array(
 					   'thirdpartycard',
+					   'thirdpartylist',
+					   'customerlist',
+					   'prospectlist',
 				       'propalcard',
 					   'ordercard',
 				       'expeditioncard',

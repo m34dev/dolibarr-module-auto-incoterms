@@ -97,36 +97,104 @@ class ActionsAutoIncoterms
 	function printFieldListOption($parameters, &$object, &$action, $hookmanager) {
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
+
+		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+		if (getDolGlobalInt('AUTOINCOTERMS_SHOW_LIST_COLUMNS') && array_intersect($listContexts, $hookmanager->contextarray)) {
+			if (!empty($parameters['arrayfields']['autoincoterms.code']['checked'])) {
+				print '<td class="liste_titre"></td>';
+			}
+			if (!empty($parameters['arrayfields']['autoincoterms.location']['checked'])) {
+				print '<td class="liste_titre"></td>';
+			}
+		}
+
 		return 0;
 	}
 
 	/**
-	 * Overloading the printFieldListTitle function: replacing the parent's function with the one below
+	 * Add fields to SQL SELECT for third party list
 	 *
 	 * @param	array			$parameters		Hook metadatas (context, etc...)
-	 * @param	Product			&$object		The object to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
-	 * @param	string			&$action		Current action (if set). Generally create or edit or null
+	 * @param	CommonObject	&$object		The object to process
+	 * @param	string			&$action		Current action (if set)
+	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
+	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
+	 */
+	function printFieldListSelect($parameters, &$object, &$action, $hookmanager) {
+		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+		if (getDolGlobalInt('AUTOINCOTERMS_SHOW_LIST_COLUMNS') && array_intersect($listContexts, $hookmanager->contextarray)) {
+			$this->resprints = ', autoinco.code as incoterms_code, s.location_incoterms';
+		}
+		return 0;
+	}
+
+	/**
+	 * Add JOIN to SQL FROM for third party list
+	 *
+	 * @param	array			$parameters		Hook metadatas (context, etc...)
+	 * @param	CommonObject	&$object		The object to process
+	 * @param	string			&$action		Current action (if set)
+	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
+	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
+	 */
+	function printFieldListFrom($parameters, &$object, &$action, $hookmanager) {
+		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+		if (getDolGlobalInt('AUTOINCOTERMS_SHOW_LIST_COLUMNS') && array_intersect($listContexts, $hookmanager->contextarray)) {
+			$this->resprints = ' LEFT JOIN '.MAIN_DB_PREFIX.'c_incoterms as autoinco ON autoinco.rowid = s.fk_incoterms';
+		}
+		return 0;
+	}
+
+	/**
+	 * Add column titles for third party list
+	 *
+	 * @param	array			$parameters		Hook metadatas (context, etc...)
+	 * @param	CommonObject	&$object		The object to process
+	 * @param	string			&$action		Current action (if set)
 	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
 	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
 	 */
 	function printFieldListTitle($parameters, &$object, &$action, $hookmanager) {
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
+
+		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+		if (getDolGlobalInt('AUTOINCOTERMS_SHOW_LIST_COLUMNS') && array_intersect($listContexts, $hookmanager->contextarray)) {
+			if (!empty($parameters['arrayfields']['autoincoterms.code']['checked'])) {
+				print '<td class="liste_titre">'.$langs->trans("AutoIncotermsColIncoterm").'</td>';
+			}
+			if (!empty($parameters['arrayfields']['autoincoterms.location']['checked'])) {
+				print '<td class="liste_titre">'.$langs->trans("AutoIncotermsColLocation").'</td>';
+			}
+		}
+
 		return 0;
 	}
-	
+
 	/**
-	 * Overloading the printFieldListValue function: replacing the parent's function with the one below
+	 * Add column values for third party list
 	 *
 	 * @param	array			$parameters		Hook metadatas (context, etc...)
-	 * @param	Product			&$object		The object to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
-	 * @param	string			&$action		Current action (if set). Generally create or edit or null
+	 * @param	CommonObject	&$object		The object to process
+	 * @param	string			&$action		Current action (if set)
 	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
 	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
 	 */
 	function printFieldListValue($parameters, &$object, &$action, $hookmanager) {
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
+
+		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+		if (getDolGlobalInt('AUTOINCOTERMS_SHOW_LIST_COLUMNS') && array_intersect($listContexts, $hookmanager->contextarray)) {
+			$obj = $parameters['obj'];
+			if (!empty($parameters['arrayfields']['autoincoterms.code']['checked'])) {
+				print '<td class="tdoverflowmax100">'.dol_escape_htmltag($obj->incoterms_code).'</td>';
+			}
+			if (!empty($parameters['arrayfields']['autoincoterms.location']['checked'])) {
+				print '<td class="tdoverflowmax150">'.dol_escape_htmltag($obj->location_incoterms).'</td>';
+			}
+		}
+
 		return 0;
 	}
 
@@ -182,6 +250,27 @@ class ActionsAutoIncoterms
 	{
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
+
+		// Register incoterms columns in third party list column selector
+		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+		if (getDolGlobalInt('AUTOINCOTERMS_SHOW_LIST_COLUMNS') && array_intersect($listContexts, $hookmanager->contextarray)) {
+			if (isset($parameters['arrayfields'])) {
+				$parameters['arrayfields']['autoincoterms.code'] = array(
+					'label' => $langs->trans('AutoIncotermsColIncoterm'),
+					'checked' => 0,
+					'position' => 55,
+					'enabled' => 1,
+					'langfile' => 'autoincoterms@autoincoterms'
+				);
+				$parameters['arrayfields']['autoincoterms.location'] = array(
+					'label' => $langs->trans('AutoIncotermsColLocation'),
+					'checked' => 0,
+					'position' => 56,
+					'enabled' => 1,
+					'langfile' => 'autoincoterms@autoincoterms'
+				);
+			}
+		}
 
 		if ($action === 'autoincoterms') {
 			dol_syslog(get_class($this)."::doActions action=autoincoterms, context=".implode(',', $hookmanager->contextarray), LOG_DEBUG);

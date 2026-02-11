@@ -18,6 +18,14 @@ AutoIncotermsClientSuccess = Incoterms du client mis à jour avec succès
 AutoIncotermsDocumentSuccess = Incoterms du document mis à jour avec succès
 AutoIncotermsDefaultIncoterm = Incoterm par défaut
 AutoIncotermsDefaultIncotermHelp = Incoterm à utiliser lorsque le client n'a pas d'incoterm défini
+AutoIncotermsShowListColumns = Afficher les colonnes incoterms dans la liste des tiers
+AutoIncotermsShowListColumnsHelp = Afficher les colonnes incoterm et lieu dans la liste des clients/prospects
+
+#
+# Colonnes de liste
+#
+AutoIncotermsColIncoterm = Incoterm
+AutoIncotermsColLocation = Lieu incoterm
 
 #
 # Actions de masse

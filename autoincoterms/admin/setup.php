@@ -118,6 +118,11 @@ $item->nameText = $langs->trans('AutoIncotermsDefaultIncoterm');
 $item->helpText = $langs->trans('AutoIncotermsDefaultIncotermHelp');
 $item->setAsSelect($incotermsOptions);
 
+$item = $formSetup->newItem('AUTOINCOTERMS_SHOW_LIST_COLUMNS');
+$item->nameText = $langs->trans('AutoIncotermsShowListColumns');
+$item->helpText = $langs->trans('AutoIncotermsShowListColumnsHelp');
+$item->setAsYesNo();
+
 $setupnotempty += count($formSetup->items);
 
 /*
