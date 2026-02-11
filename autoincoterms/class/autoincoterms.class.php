@@ -51,34 +51,46 @@ class AutoIncoterms
 	}
 
 	/**
-	 * Set incoterms location for a client based on their city and country
+	 * Resolve incoterms ID and location from a client's address
 	 *
-	 * @param int      $clientId     ID of the client (third party)
-	 * @param int|null $incotermsId  Optional incoterms ID to set (null to keep existing)
+	 * @param int         $clientId     ID of the client (third party)
+	 * @param int|null    $incotermsId  Optional incoterms ID to set (null to keep existing)
 	 * @param string|null $locationText Optional location text to set (null to derive from client address)
-	 * @return int 1 if success with city and country, 2 if success with city only, 3 if success with country only, 4 if success with provided location text, -1 if client not found or update failed, -2 if no city and no country, -3 if third party is not a client or prospect
+	 * @return array|int Array with keys 'fk_incoterms', 'location', 'code' on success, or negative int on error: -1 client not found, -2 no city and no country, -3 not a client or prospect, -4 no incoterms and no default
 	 */
-	public function setIncotermsLocationFromClientAddress($clientId, $incotermsId = null, $locationText = null)
+	protected function resolveIncotermsFromClient($clientId, $incotermsId = null, $locationText = null)
 	{
+		global $langs;
+		$langs->load("autoincoterms@autoincoterms");
+
 		dol_syslog(__METHOD__." clientId=".$clientId." incotermsId=".$incotermsId." locationText=".$locationText, LOG_DEBUG);
 
 		$societe = new Societe($this->db);
 
 		$result = $societe->fetch($clientId);
 		if ($result <= 0) {
-			$this->error = 'Client not found';
+			$this->error = $langs->trans('AutoIncotermsErrorClientNotFound');
 			dol_syslog(__METHOD__." error=".$this->error, LOG_ERR);
 			return -1;
 		}
 
 		if ($societe->client == 0) {
-			$this->error = 'Third party is not a client or prospect';
+			$this->error = $langs->trans('AutoIncotermsErrorNotClientOrProspect');
 			dol_syslog(__METHOD__." error=".$this->error, LOG_WARNING);
 			return -3;
 		}
 
-		// Use provided incoterms ID or keep existing
+		// Use provided incoterms ID or keep existing, fallback to module default
 		$fkIncoterms = ($incotermsId !== null) ? $incotermsId : $societe->fk_incoterms;
+		if (empty($fkIncoterms)) {
+			$fkIncoterms = getDolGlobalInt('AUTOINCOTERMS_DEFAULT_INCOTERM');
+			if (empty($fkIncoterms)) {
+				$this->error = $langs->trans('AutoIncotermsErrorNoIncotermAndNoDefault');
+				dol_syslog(__METHOD__." error=".$this->error, LOG_WARNING);
+				return -4;
+			}
+			dol_syslog(__METHOD__." client has no incoterms, using default fk_incoterms=".$fkIncoterms, LOG_DEBUG);
+		}
 
 		// Use provided location text or derive from client address
 		if ($locationText !== null) {
@@ -89,35 +101,91 @@ class AutoIncoterms
 			$hasCountry = !empty($societe->country);
 
 			if (!$hasCity && !$hasCountry) {
-				$this->error = 'Client has no city and no country';
+				$this->error = $langs->trans('AutoIncotermsErrorNoCityNoCountry');
 				dol_syslog(__METHOD__." error=".$this->error, LOG_WARNING);
 				return -2;
 			}
 
+			$town = dol_strtoupper($societe->town);
+			$country = dol_strtoupper($societe->country);
+
 			if ($hasCity && $hasCountry) {
-				$location = $societe->town.', '.$societe->country;
+				$location = $town.' - '.$country;
 				$returnCode = 1;
 			} elseif ($hasCity) {
-				$location = $societe->town;
+				$location = $town;
 				$returnCode = 2;
 			} else {
-				$location = $societe->country;
+				$location = $country;
 				$returnCode = 3;
 			}
 		}
 
-		dol_syslog(__METHOD__." setting incotermsId=".$fkIncoterms." location=".$location, LOG_DEBUG);
+		dol_syslog(__METHOD__." resolved fk_incoterms=".$fkIncoterms." location=".$location." code=".$returnCode, LOG_DEBUG);
 
-		$result = $societe->setIncoterms($fkIncoterms, $location);
+		return array('fk_incoterms' => $fkIncoterms, 'location' => $location, 'code' => $returnCode);
+	}
+
+	/**
+	 * Set incoterms location for a client based on their city and country
+	 *
+	 * @param int      $clientId     ID of the client (third party)
+	 * @param int|null $incotermsId  Optional incoterms ID to set (null to keep existing)
+	 * @param string|null $locationText Optional location text to set (null to derive from client address)
+	 * @return int 1 if success with city and country, 2 if success with city only, 3 if success with country only, 4 if success with provided location text, -1 if client not found or update failed, -2 if no city and no country, -3 if third party is not a client or prospect, -4 if no incoterms set and no default configured
+	 */
+	public function setIncotermsLocationFromClientAddress($clientId, $incotermsId = null, $locationText = null)
+	{
+		dol_syslog(__METHOD__." clientId=".$clientId, LOG_DEBUG);
+
+		$resolved = $this->resolveIncotermsFromClient($clientId, $incotermsId, $locationText);
+		if (!is_array($resolved)) {
+			return $resolved;
+		}
+
+		$societe = new Societe($this->db);
+		$societe->fetch($clientId);
+
+		$result = $societe->setIncoterms($resolved['fk_incoterms'], $resolved['location']);
 		if ($result < 0) {
 			$this->error = $societe->error;
 			dol_syslog(__METHOD__." error=".$this->error, LOG_ERR);
 			return -1;
 		}
 
-		dol_syslog(__METHOD__." success, returnCode=".$returnCode, LOG_DEBUG);
+		dol_syslog(__METHOD__." success, returnCode=".$resolved['code'], LOG_DEBUG);
 
-		return $returnCode;
+		return $resolved['code'];
+	}
+
+	/**
+	 * Set incoterms on a commercial document (propal, order, invoice, etc.) based on client address
+	 *
+	 * @param CommonObject $object       The document object (Propal, Commande, Facture, etc.)
+	 * @param int          $clientId     ID of the client (third party)
+	 * @param int|null     $incotermsId  Optional incoterms ID to set (null to keep existing)
+	 * @param string|null  $locationText Optional location text to set (null to derive from client address)
+	 * @return int 1 if success with city and country, 2 if success with city only, 3 if success with country only, 4 if success with provided location text, -1 if client not found or update failed, -2 if no city and no country, -3 if third party is not a client or prospect, -4 if no incoterms set and no default configured
+	 */
+	public function setDocumentIncotermsFromClientAddress($object, $clientId, $incotermsId = null, $locationText = null)
+	{
+		dol_syslog(__METHOD__." objectClass=".get_class($object)." objectId=".$object->id." clientId=".$clientId, LOG_DEBUG);
+
+		$resolved = $this->resolveIncotermsFromClient($clientId, $incotermsId, $locationText);
+		if (!is_array($resolved)) {
+			return $resolved;
+		}
+
+		$result = $object->setIncoterms($resolved['fk_incoterms'], $resolved['location']);
+		if ($result < 0) {
+			$this->error = $object->error;
+			dol_syslog(__METHOD__." error=".$this->error, LOG_ERR);
+			return -1;
+		}
+
+		dol_syslog(__METHOD__." success, returnCode=".$resolved['code'], LOG_DEBUG);
+
+		return $resolved['code'];
 	}
 
 	/**

@@ -12,3 +12,15 @@ AutoIncotermsSetup = Auto Incoterms
 Settings = Settings
 AutoIncotermsSetupPage = Options
 RefreshAutoIncoterms = Refresh Auto Incoterms
+AutoIncotermsClientSuccess = Client incoterms updated successfully
+AutoIncotermsDocumentSuccess = Document incoterms updated successfully
+AutoIncotermsDefaultIncoterm = Default Incoterm
+AutoIncotermsDefaultIncotermHelp = Incoterm to use when the client has no incoterm set
+
+#
+# Error messages
+#
+AutoIncotermsErrorClientNotFound = Client not found
+AutoIncotermsErrorNotClientOrProspect = Third party is not a client or prospect
+AutoIncotermsErrorNoIncotermAndNoDefault = No incoterm set on client and no default incoterm configured
+AutoIncotermsErrorNoCityNoCountry = Client has no city and no country

@@ -102,6 +102,22 @@ if (!$user->admin) {
 
 // Enter here all parameters in your setup page
 
+// Build incoterms select options from dictionary
+$sql = "SELECT rowid, code FROM ".$db->prefix()."c_incoterms WHERE active = 1 ORDER BY code";
+$resql = $db->query($sql);
+$incotermsOptions = array(0 => $langs->trans("None"));
+if ($resql) {
+	while ($obj = $db->fetch_object($resql)) {
+		$incotermsOptions[$obj->rowid] = $obj->code;
+	}
+	$db->free($resql);
+}
+
+$item = $formSetup->newItem('AUTOINCOTERMS_DEFAULT_INCOTERM');
+$item->nameText = $langs->trans('AutoIncotermsDefaultIncoterm');
+$item->helpText = $langs->trans('AutoIncotermsDefaultIncotermHelp');
+$item->setAsSelect($incotermsOptions);
+
 $setupnotempty += count($formSetup->items);
 
 /*
@@ -119,7 +135,7 @@ $action = 'edit';
 $form = new Form($db);
 
 $help_url = '';
-$title = "autoincotermsSetup";
+$title = "AutoIncotermsSetup";
 
 llxHeader('', $langs->trans($title), $help_url, '', 0, 0, '', '', '', 'mod-autoincoterms page-admin');
 

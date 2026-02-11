@@ -29,7 +29,7 @@ include_once DOL_DOCUMENT_ROOT.'/core/modules/DolibarrModules.class.php';
 /**
  *  Description and activation class for module AutoIncoterms
  */
-class modautoincoterms extends DolibarrModules
+class modAutoIncoterms extends DolibarrModules
 {
 	/**
 	 * Constructor. Define names, constants, directories, boxes, permissions
@@ -118,6 +118,7 @@ class modautoincoterms extends DolibarrModules
 			/* BEGIN MODULEBUILDER HOOKSCONTEXTS */
 			'hooks' => array(
 				   'data' => array(
+					   'thirdpartycard',
 				       'propalcard',
 					   'ordercard',
 				       'expeditioncard',
@@ -144,10 +145,10 @@ class modautoincoterms extends DolibarrModules
 
 		// Dependencies
 		// A condition to hide module
-		$this->hidden = getDolGlobalInt('MODULE_autoincoterms_DISABLED'); // A condition to disable module;
+		$this->hidden = getDolGlobalInt('MODULE_AUTOINCOTERMS_DISABLED'); // A condition to disable module;
 		// List of module class names that must be enabled if this module is enabled. Example: array('always'=>array('modModuleToEnable1','modModuleToEnable2'), 'FR'=>array('modModuleToEnableFR')...)
 		$this->depends = array(
-			'always' => array('modProduct', 'modStock'),
+			'always' => array('modIncoterm'),
 		);
 		// List of module class names to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->requiredby = array();
@@ -165,8 +166,8 @@ class modautoincoterms extends DolibarrModules
 		$this->need_javascript_ajax = 0;
 
 		// Messages at activation
-		$this->warnings_activation = array('EN'=>'Please check this condition', 'FR'=>'Merci de vérifier cette condition'); // Warning to show when we activate module. array('always'='text') or array('FR'='textfr','MX'='textmx'...)
-		$this->warnings_activation_ext = array(); // Warning to show when we activate an external module. array('always'='text') or array('FR'='textfr','MX'='textmx'...)
+		// $this->warnings_activation = array('EN'=>'Please check this condition', 'FR'=>'Merci de vérifier cette condition'); // Warning to show when we activate module. array('always'='text') or array('FR'='textfr','MX'='textmx'...)
+		// $this->warnings_activation_ext = array(); // Warning to show when we activate an external module. array('always'='text') or array('FR'='textfr','MX'='textmx'...)
 		//$this->automatic_activation = array('FR'=>'autoincotermsWasAutomaticallyActivatedBecauseOfYourCountryChoice');
 		//$this->always_enabled = true;								// If true, can't be disabled
 
@@ -473,7 +474,7 @@ class modautoincoterms extends DolibarrModules
 	{
 		global $conf, $langs, $db;
 		
-		$result = dolibarr_set_const($db, 'autoincoterms_OPTION', 1);
+		$result = dolibarr_set_const($db, 'AUTOINCOTERMS_DEFAULT_INCOTERM', 0);
 		if($result < 0) return $result;
 
 		// Create tables of module at module activation

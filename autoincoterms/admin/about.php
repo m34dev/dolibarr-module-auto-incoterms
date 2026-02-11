@@ -106,7 +106,7 @@ print load_fiche_titre($langs->trans($title), $linkback, 'object_autoincoterms@a
 $head = autoincotermsAdminPrepareHead();
 print dol_get_fiche_head($head, 'about', $langs->trans($title), 0, 'setup');
 
-dol_include_once('/autoincoterms/core/modules/modautoincoterms.class.php');
+dol_include_once('/autoincoterms/core/modules/modAutoIncoterms.class.php');
 $tmpmodule = new modautoincoterms($db);
 print $tmpmodule->getDescLong();
 

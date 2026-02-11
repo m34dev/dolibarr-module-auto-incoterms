@@ -34,15 +34,15 @@ function autoincotermsAdminPrepareHead()
 
 	$h = 0;
 	$head = array();
+	
+	$head[$h][0] = dol_buildpath("/autoincoterms/admin/autoincoterms.php", 1);
+	$head[$h][1] = $langs->trans("AutoIncoterms");
+	$head[$h][2] = 'autoincoterms';
+	$h++;
 
 	$head[$h][0] = dol_buildpath("/autoincoterms/admin/setup.php", 1);
 	$head[$h][1] = $langs->trans("Setup");
 	$head[$h][2] = 'Setup';
-	$h++;
-
-	$head[$h][0] = dol_buildpath("/autoincoterms/admin/autoincoterms.php", 1);
-	$head[$h][1] = $langs->trans("AutoIncoterms");
-	$head[$h][2] = 'autoincoterms';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/autoincoterms/admin/about.php", 1);

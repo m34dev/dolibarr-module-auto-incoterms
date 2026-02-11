@@ -159,7 +159,7 @@ class ActionsAutoIncoterms
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
 		
-		$allowedContexts = array('propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
+		$allowedContexts = array('thirdpartycard', 'propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
 
 		if (array_intersect($allowedContexts, $hookmanager->contextarray)) {
 			$url = $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=autoincoterms&token='.newToken();
@@ -184,21 +184,45 @@ class ActionsAutoIncoterms
 		$langs->load("autoincoterms@autoincoterms");
 
 		if ($action === 'autoincoterms') {
-			$allowedContexts = array('propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
+			dol_syslog(get_class($this)."::doActions action=autoincoterms, context=".implode(',', $hookmanager->contextarray), LOG_DEBUG);
+
+			$allowedContexts = array('thirdpartycard', 'propalcard', 'ordercard', 'invoicecard', 'expeditioncard', 'invoicereccard');
 
 			if (array_intersect($allowedContexts, $hookmanager->contextarray)) {
-				$socid = !empty($object->socid) ? $object->socid : "";
+				if (in_array('thirdpartycard', $hookmanager->contextarray)) {
+					$socid = $object->id;
+				} else {
+					$socid = !empty($object->socid) ? $object->socid : "";
+				}
+				dol_syslog(get_class($this)."::doActions processing object id=".$object->id." socid=".$socid, LOG_DEBUG);
 
 				$autoIncoterms = new AutoIncoterms($this->db);
-				$result = $autoIncoterms->setIncotermsLocationFromClientAddress($socid);
 
+				// Update third party incoterms
+				$result = $autoIncoterms->setIncotermsLocationFromClientAddress($socid);
 				if ($result > 0) {
-					setEventMessages($langs->trans("AutoIncotermsSuccess"), null, 'mesgs');
+					dol_syslog(get_class($this)."::doActions setIncotermsLocationFromClientAddress success for socid=".$socid, LOG_INFO);
+					setEventMessages($langs->trans("AutoIncotermsClientSuccess"), null, 'mesgs');
 				} else {
+					dol_syslog(get_class($this)."::doActions setIncotermsLocationFromClientAddress failed for socid=".$socid." error=".$autoIncoterms->error, LOG_ERR);
 					setEventMessages($autoIncoterms->error, null, 'errors');
 				}
 
+				// Update document incoterms (propal, order, invoice, etc.)
+				if (!in_array('thirdpartycard', $hookmanager->contextarray)) {
+					$resultDoc = $autoIncoterms->setDocumentIncotermsFromClientAddress($object, $socid);
+					if ($resultDoc > 0) {
+						dol_syslog(get_class($this)."::doActions setDocumentIncotermsFromClientAddress success for object id=".$object->id, LOG_INFO);
+						setEventMessages($langs->trans("AutoIncotermsDocumentSuccess"), null, 'mesgs');
+					} else {
+						dol_syslog(get_class($this)."::doActions setDocumentIncotermsFromClientAddress failed for object id=".$object->id." error=".$autoIncoterms->error, LOG_ERR);
+						setEventMessages($autoIncoterms->error, null, 'errors');
+					}
+				}
+
 				$action = '';
+			} else {
+				dol_syslog(get_class($this)."::doActions context not allowed: ".implode(',', $hookmanager->contextarray), LOG_WARNING);
 			}
 		}
 
