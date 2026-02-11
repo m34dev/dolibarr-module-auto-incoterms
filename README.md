@@ -2,12 +2,12 @@
 
 ## Features
 
-Auto Incoterms module. Description of the module.
+Auto Incoterms module. Automatically add city and country to all third party clients and prospects incoterms.
 
-- Set default incoterms for all clients
-- Set default incoterms text to city and/or country for all clients
-- Set default incoterms text to city and/or country for a selection of clients from the clients list
-- Set default incoterms text to city and/or country for a single client from the client card
+- Set default incoterms for all clients/prospects
+- Set incoterms text to city and/or country for all clients
+- List mass action to set incoterms text to city and/or country for a selection of clients
+- Set incoterms text to city and/or country for a single client from the client card
 - Set incoterms text to city and/or country for commercial documents
 - Dedicated API route to set the default incoterms for clients
 

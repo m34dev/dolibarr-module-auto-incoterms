@@ -3,7 +3,7 @@
 # Module label 'ModuleAutoIncotermsName'
 ModuleautoincotermsName = Auto Incoterms
 # Module description 'ModuleAutoIncotermsDesc'
-ModuleautoincotermsDesc = Auto Incoterms
+ModuleautoincotermsDesc = Ajoutez automatiquement ville et pays aux incoterms des clients et des prospects.
 
 #
 # Admin page
