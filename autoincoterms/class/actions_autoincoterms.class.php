@@ -161,10 +161,10 @@ class ActionsAutoIncoterms
 		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
 		if (getDolGlobalInt('AUTOINCOTERMS_SHOW_LIST_COLUMNS') && array_intersect($listContexts, $hookmanager->contextarray)) {
 			if (!empty($parameters['arrayfields']['autoincoterms.code']['checked'])) {
-				print '<td class="liste_titre">'.$langs->trans("AutoIncotermsColIncoterm").'</td>';
+				print '<th class="wrapcolumntitle liste_titre center">'.$langs->trans("AutoIncotermsColIncoterm").'</th>';
 			}
 			if (!empty($parameters['arrayfields']['autoincoterms.location']['checked'])) {
-				print '<td class="liste_titre">'.$langs->trans("AutoIncotermsColLocation").'</td>';
+				print '<th class="wrapcolumntitle liste_titre center">'.$langs->trans("AutoIncotermsColLocation").'</th>';
 			}
 		}
 
