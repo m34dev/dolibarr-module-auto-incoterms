@@ -27,8 +27,13 @@ AutoIncotermsUpdateAllClientsDesc = Update incoterms free text with location for
 AutoIncotermsUpdateAllClientsButton = Update
 AutoIncotermsUpdateAllDefaultDesc = Override incoterms for all active clients and prospects with the default incoterm from module settings
 AutoIncotermsUpdateAllDefaultButton = Override
-AutoIncotermsUpdateAllSuccess = %s client(s) updated successfully
-AutoIncotermsUpdateAllErrors = %s client(s) could not be updated
+AutoIncotermsResetAllClientsTitle = Reset all incoterms
+AutoIncotermsResetAllClientsDesc = Clear incoterms for all active clients and prospects (set to empty)
+AutoIncotermsResetAllClientsButton = Reset
+AutoIncotermsResetAllSuccess = %s client(s) incoterms reset successfully
+AutoIncotermsResetAllErrors = %s client(s) incoterms could not be reset
+AutoIncotermsUpdateAllSuccess = %s client(s) incoterms updated successfully
+AutoIncotermsUpdateAllErrors = %s client(s) incoterms could not be updated
 
 #
 # Error messages

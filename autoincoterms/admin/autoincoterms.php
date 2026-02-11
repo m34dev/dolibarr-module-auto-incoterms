@@ -118,7 +118,7 @@ if ($action === 'updateallclientsdefault') {
 		setEventMessages($langs->trans('AutoIncotermsErrorNoDefault'), null, 'errors');
 	} else {
 		$autoIncoterms = new AutoIncoterms($db);
-		$results = $autoIncoterms->updateIncotermsForAllActiveClients($defaultIncotermsId);
+		$results = $autoIncoterms->updateIncotermsForAllActiveClients($defaultIncotermsId, null, true);
 
 		if ($results === -1) {
 			setEventMessages($langs->trans('AutoIncotermsErrorDatabase'), null, 'errors');
@@ -131,6 +131,30 @@ if ($action === 'updateallclientsdefault') {
 			if ($errorCount > 0) {
 				setEventMessages($langs->trans('AutoIncotermsUpdateAllErrors', $errorCount), null, 'warnings');
 			}
+		}
+	}
+
+	$action = '';
+}
+
+if ($action === 'resetallclients') {
+	if (!verifCond(newToken() == GETPOST('token', 'alpha'))) {
+		accessforbidden('Bad value for CSRF token');
+	}
+
+	$autoIncoterms = new AutoIncoterms($db);
+	$results = $autoIncoterms->updateIncotermsForAllActiveClients(0, '');
+
+	if ($results === -1) {
+		setEventMessages($langs->trans('AutoIncotermsErrorDatabase'), null, 'errors');
+	} else {
+		$successCount = $results['success'];
+		$errorCount = count($results['errors']);
+		if ($successCount > 0) {
+			setEventMessages($langs->trans('AutoIncotermsResetAllSuccess', $successCount), null, 'mesgs');
+		}
+		if ($errorCount > 0) {
+			setEventMessages($langs->trans('AutoIncotermsResetAllErrors', $errorCount), null, 'warnings');
 		}
 	}
 
@@ -172,9 +196,6 @@ print dol_get_fiche_head($head, 'autoincoterms', $langs->trans($title), -1, "set
 // Page content goes here
 print '<span class="opacitymedium">'.$langs->trans("AutoIncotermsPage").'</span><br><br>';
 
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.newToken().'">';
-print '<input type="hidden" name="action" value="updateallclients">';
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
 print '<td>'.$langs->trans("AutoIncotermsUpdateAllClientsTitle").'</td>';
@@ -182,12 +203,40 @@ print '<td class="right"></td>';
 print '</tr>';
 print '<tr class="oddeven">';
 print '<td>'.$langs->trans("AutoIncotermsUpdateAllClientsDesc").'</td>';
-print '<td class="right"><input type="submit" class="button" value="'.$langs->trans("AutoIncotermsUpdateAllClientsButton").'"></td>';
+print '<td class="right">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'" style="display:inline">';
+print '<input type="hidden" name="token" value="'.newToken().'">';
+print '<input type="hidden" name="action" value="updateallclients">';
+print '<input type="submit" class="button" value="'.$langs->trans("AutoIncotermsUpdateAllClientsButton").'">';
+print '</form>';
+print '</td>';
 print '</tr>';
 print '<tr class="oddeven">';
 print '<td>'.$langs->trans("AutoIncotermsUpdateAllDefaultDesc").(!empty($defaultIncotermCode) ? ': <strong>'.$defaultIncotermCode.'</strong>' : '').'</td>';
+print '<td class="right">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'" style="display:inline">';
+print '<input type="hidden" name="token" value="'.newToken().'">';
+print '<input type="hidden" name="action" value="updateallclientsdefault">';
 $defaultButtonLabel = $langs->trans("AutoIncotermsUpdateAllDefaultButton");
-print '<td class="right"><input type="submit" class="button" value="'.$defaultButtonLabel.'"'.($defaultIncotermId > 0 ? '' : ' disabled').'></td>';
+print '<input type="submit" class="button" value="'.$defaultButtonLabel.'"'.($defaultIncotermId > 0 ? '' : ' disabled').'>';
+print '</form>';
+print '</td>';
+print '</tr>';
+print '</table>';
+
+print '<br>';
+
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.newToken().'">';
+print '<input type="hidden" name="action" value="resetallclients">';
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>'.$langs->trans("AutoIncotermsResetAllClientsTitle").'</td>';
+print '<td class="right"></td>';
+print '</tr>';
+print '<tr class="oddeven">';
+print '<td>'.$langs->trans("AutoIncotermsResetAllClientsDesc").'</td>';
+print '<td class="right"><input type="submit" class="butActionDelete" value="'.$langs->trans("AutoIncotermsResetAllClientsButton").'"></td>';
 print '</tr>';
 print '</table>';
 print '</form>';

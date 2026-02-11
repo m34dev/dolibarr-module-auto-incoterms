@@ -56,9 +56,10 @@ class AutoIncoterms
 	 * @param int         $clientId     ID of the client (third party)
 	 * @param int|null    $incotermsId  Optional incoterms ID to set (null to keep existing)
 	 * @param string|null $locationText Optional location text to set (null to derive from client address)
+	 * @param bool        $keepExistingLocation If true, keep existing location text on the client instead of deriving from address
 	 * @return array|int Array with keys 'fk_incoterms', 'location', 'code' on success, or negative int on error: -1 client not found, -2 no city and no country, -3 not a client or prospect, -4 no incoterms and no default
 	 */
-	protected function resolveIncotermsFromClient($clientId, $incotermsId = null, $locationText = null)
+	protected function resolveIncotermsFromClient($clientId, $incotermsId = null, $locationText = null, $keepExistingLocation = false)
 	{
 		global $langs;
 		$langs->load("autoincoterms@autoincoterms");
@@ -81,21 +82,28 @@ class AutoIncoterms
 		}
 
 		// Use provided incoterms ID or keep existing, fallback to module default
-		$fkIncoterms = ($incotermsId !== null) ? $incotermsId : $societe->fk_incoterms;
-		if (empty($fkIncoterms)) {
-			$fkIncoterms = getDolGlobalInt('AUTOINCOTERMS_DEFAULT_INCOTERM');
+		if ($incotermsId !== null) {
+			$fkIncoterms = $incotermsId;
+		} else {
+			$fkIncoterms = $societe->fk_incoterms;
 			if (empty($fkIncoterms)) {
-				$this->error = $langs->trans('AutoIncotermsErrorNoIncotermAndNoDefault');
-				dol_syslog(__METHOD__." error=".$this->error, LOG_WARNING);
-				return -4;
+				$fkIncoterms = getDolGlobalInt('AUTOINCOTERMS_DEFAULT_INCOTERM');
+				if (empty($fkIncoterms)) {
+					$this->error = $langs->trans('AutoIncotermsErrorNoIncotermAndNoDefault');
+					dol_syslog(__METHOD__." error=".$this->error, LOG_WARNING);
+					return -4;
+				}
+				dol_syslog(__METHOD__." client has no incoterms, using default fk_incoterms=".$fkIncoterms, LOG_DEBUG);
 			}
-			dol_syslog(__METHOD__." client has no incoterms, using default fk_incoterms=".$fkIncoterms, LOG_DEBUG);
 		}
 
-		// Use provided location text or derive from client address
+		// Use provided location text, keep existing, or derive from client address
 		if ($locationText !== null) {
 			$location = $locationText;
 			$returnCode = 4;
+		} elseif ($keepExistingLocation) {
+			$location = $societe->location_incoterms;
+			$returnCode = 5;
 		} else {
 			$hasCity = !empty($societe->town);
 			$hasCountry = !empty($societe->country);
@@ -132,13 +140,14 @@ class AutoIncoterms
 	 * @param int      $clientId     ID of the client (third party)
 	 * @param int|null $incotermsId  Optional incoterms ID to set (null to keep existing)
 	 * @param string|null $locationText Optional location text to set (null to derive from client address)
-	 * @return int 1 if success with city and country, 2 if success with city only, 3 if success with country only, 4 if success with provided location text, -1 if client not found or update failed, -2 if no city and no country, -3 if third party is not a client or prospect, -4 if no incoterms set and no default configured
+	 * @param bool     $keepExistingLocation If true, keep existing location text on the client instead of deriving from address
+	 * @return int 1-4 on success (see resolveIncotermsFromClient), 5 if success with kept location, -1 if client not found or update failed, -2 if no city and no country, -3 if third party is not a client or prospect, -4 if no incoterms set and no default configured
 	 */
-	public function setIncotermsLocationFromClientAddress($clientId, $incotermsId = null, $locationText = null)
+	public function setIncotermsLocationFromClientAddress($clientId, $incotermsId = null, $locationText = null, $keepExistingLocation = false)
 	{
 		dol_syslog(__METHOD__." clientId=".$clientId, LOG_DEBUG);
 
-		$resolved = $this->resolveIncotermsFromClient($clientId, $incotermsId, $locationText);
+		$resolved = $this->resolveIncotermsFromClient($clientId, $incotermsId, $locationText, $keepExistingLocation);
 		if (!is_array($resolved)) {
 			return $resolved;
 		}
@@ -194,9 +203,10 @@ class AutoIncoterms
 	 * @param array       $clientIds    Array of client IDs
 	 * @param int|null    $incotermsId  Optional incoterms ID to set for all clients (null to keep existing)
 	 * @param string|null $locationText Optional location text to set for all clients (null to derive from client address)
+	 * @param bool        $keepExistingLocation If true, keep existing location text on the client instead of deriving from address
 	 * @return array Associative array with results: 'success' => count, 'errors' => array of [id => error code]
 	 */
-	public function updateIncotermsForClients($clientIds, $incotermsId = null, $locationText = null)
+	public function updateIncotermsForClients($clientIds, $incotermsId = null, $locationText = null, $keepExistingLocation = false)
 	{
 		dol_syslog(__METHOD__." called with ".count($clientIds)." clients, incotermsId=".$incotermsId." locationText=".$locationText, LOG_DEBUG);
 
@@ -206,7 +216,7 @@ class AutoIncoterms
 		);
 
 		foreach ($clientIds as $clientId) {
-			$result = $this->setIncotermsLocationFromClientAddress($clientId, $incotermsId, $locationText);
+			$result = $this->setIncotermsLocationFromClientAddress($clientId, $incotermsId, $locationText, $keepExistingLocation);
 			if ($result > 0) {
 				$results['success']++;
 			} else {
@@ -224,9 +234,10 @@ class AutoIncoterms
 	 *
 	 * @param int|null    $incotermsId  Optional incoterms ID to set for all clients (null to keep existing)
 	 * @param string|null $locationText Optional location text to set for all clients (null to derive from client address)
+	 * @param bool        $keepExistingLocation If true, keep existing location text on the client instead of deriving from address
 	 * @return array|int Associative array with results: 'success' => count, 'errors' => array of [id => error code], or -1 on database error
 	 */
-	public function updateIncotermsForAllActiveClients($incotermsId = null, $locationText = null)
+	public function updateIncotermsForAllActiveClients($incotermsId = null, $locationText = null, $keepExistingLocation = false)
 	{
 		dol_syslog(__METHOD__." called, incotermsId=".$incotermsId." locationText=".$locationText, LOG_DEBUG);
 
@@ -236,7 +247,7 @@ class AutoIncoterms
 			return -1;
 		}
 
-		return $this->updateIncotermsForClients($clientIds, $incotermsId, $locationText);
+		return $this->updateIncotermsForClients($clientIds, $incotermsId, $locationText, $keepExistingLocation);
 	}
 
 	/**

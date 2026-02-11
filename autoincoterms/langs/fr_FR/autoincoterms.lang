@@ -27,8 +27,13 @@ AutoIncotermsUpdateAllClientsDesc = Mettre à jour le texte libre des incoterms 
 AutoIncotermsUpdateAllClientsButton = Mettre à jour
 AutoIncotermsUpdateAllDefaultDesc = Remplacer les incoterms de tous les clients et prospects actifs par l'incoterm par défaut des paramètres du module
 AutoIncotermsUpdateAllDefaultButton = Remplacer
-AutoIncotermsUpdateAllSuccess = %s client(s) mis à jour avec succès
-AutoIncotermsUpdateAllErrors = %s client(s) n'ont pas pu être mis à jour
+AutoIncotermsResetAllClientsTitle = Réinitialiser tous les incoterms
+AutoIncotermsResetAllClientsDesc = Effacer les incoterms de tous les clients et prospects actifs (mettre à vide)
+AutoIncotermsResetAllClientsButton = Réinitialiser
+AutoIncotermsResetAllSuccess = %s incoterms client(s) réinitialisé(s) avec succès
+AutoIncotermsResetAllErrors = %s incoterms client(s) n'ont pas pu être réinitialisé(s)
+AutoIncotermsUpdateAllSuccess = %s incoterms client(s) mis à jour avec succès
+AutoIncotermsUpdateAllErrors = %s incoterms client(s) n'ont pas pu être mis à jour
 
 #
 # Messages d'erreur
