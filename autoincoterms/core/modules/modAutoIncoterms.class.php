@@ -63,9 +63,9 @@ class modAutoIncoterms extends DolibarrModules
 
 		// DESCRIPTION_FLAG
 		// Module description, used if translation string 'ModuleautoincotermsDesc' not found (autoincoterms is name of module).
-		$this->description = "Auto Incoterms";
+		$this->description = "Automatically add city and country to all clients incoterms";
 		// Used only if file README.md and README-LL.md not found.
-		$this->descriptionlong = "Auto Incoterms";
+		$this->descriptionlong = "Automatically add city and country to all clients incoterms";
 
 		// Author
 		$this->editor_name = 'M34D - William Mead';

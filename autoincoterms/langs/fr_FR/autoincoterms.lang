@@ -1,9 +1,9 @@
 # Translation file
 
 # Module label 'ModuleAutoIncotermsName'
-ModuleautoincotermsName = Auto Incoterms
+ModuleAutoIncotermsName = Auto Incoterms
 # Module description 'ModuleAutoIncotermsDesc'
-ModuleautoincotermsDesc = Ajoutez automatiquement ville et pays aux incoterms des clients et des prospects.
+ModuleAutoIncotermsDesc = Ajoutez automatiquement ville et pays aux incoterms des clients.
 
 #
 # Admin page
