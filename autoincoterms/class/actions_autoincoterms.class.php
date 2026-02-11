@@ -199,6 +199,67 @@ class ActionsAutoIncoterms
 	}
 
 	/**
+	 * Add mass action option to third party list
+	 *
+	 * @param	array			$parameters		Hook metadatas (context, etc...)
+	 * @param	CommonObject	&$object		The object to process
+	 * @param	string			&$action		Current action (if set)
+	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
+	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
+	 */
+	function addMoreMassActions($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs;
+		$langs->load("autoincoterms@autoincoterms");
+
+		$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+		if (array_intersect($listContexts, $hookmanager->contextarray)) {
+			$this->resprints = '<option value="autoincoterms_update">'.$langs->trans("AutoIncotermsMassActionUpdate").'</option>';
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Execute mass action for updating incoterms on selected third parties
+	 *
+	 * @param	array			$parameters		Hook metadatas (context, etc...)
+	 * @param	CommonObject	&$object		The object to process
+	 * @param	string			&$action		Current action (if set)
+	 * @param	HookManager		$hookmanager	Hook manager propagated to allow calling another hook
+	 * @return	int								< 0 on error, 0 on success, 1 to replace standard code
+	 */
+	function doMassActions($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs, $massaction;
+		$langs->load("autoincoterms@autoincoterms");
+
+		if ($massaction === 'autoincoterms_update') {
+			$listContexts = array('thirdpartylist', 'customerlist', 'prospectlist');
+			if (array_intersect($listContexts, $hookmanager->contextarray)) {
+				$toselect = GETPOST('toselect', 'array:int');
+				if (!empty($toselect)) {
+					dol_syslog(get_class($this)."::doMassActions autoincoterms_update for ".count($toselect)." clients", LOG_DEBUG);
+
+					$autoIncoterms = new AutoIncoterms($this->db);
+					$results = $autoIncoterms->updateIncotermsForClients($toselect);
+
+					if ($results['success'] > 0) {
+						setEventMessages($langs->trans("AutoIncotermsUpdateAllSuccess", $results['success']), null, 'mesgs');
+					}
+					if (count($results['errors']) > 0) {
+						setEventMessages($langs->trans("AutoIncotermsUpdateAllErrors", count($results['errors'])), null, 'errors');
+					}
+				}
+
+				$massaction = '';
+			}
+		}
+
+		return 0;
+	}
+
+	/**
 	 * Overloading the loadStaticObject function: replacing the parent's function with the one below
 	 *
 	 * @param	array			$parameters		Hook metadatas (context, etc...)

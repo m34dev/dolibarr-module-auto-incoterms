@@ -26,6 +26,7 @@ AutoIncotermsShowListColumnsHelp = Afficher les colonnes incoterm et lieu dans l
 #
 AutoIncotermsColIncoterm = Incoterm
 AutoIncotermsColLocation = Lieu incoterm
+AutoIncotermsMassActionUpdate = Mettre à jour le incoterms avec lieu
 
 #
 # Actions de masse
