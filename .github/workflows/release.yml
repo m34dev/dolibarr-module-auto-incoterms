@@ -31,4 +31,5 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           body: Release created from CI/CD
+          prerelease: ${{ contains(github.ref_name, '-') }}
           files: artifacts/module_autoincoterms-${{ github.ref_name }}.zip
