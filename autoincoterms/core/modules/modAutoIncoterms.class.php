@@ -73,9 +73,9 @@ class modAutoIncoterms extends DolibarrModules
 		$this->editor_squarred_logo = 'logoSquareM34D.png@autoincoterms';					// Must be image filename into the module/img directory followed with @modulename. Example: 'myimage.png@autoincoterms'
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated', 'experimental_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.0.1';
+		$this->version = '1.1.0';
 		// Url to the file with your last numberversion of this module
-		$this->url_last_version = 'https://lab.frogg.it/dolibarr/auto-incoterms/-/raw/main/versionmodule.txt?ref_type=heads';
+		$this->url_last_version = 'https://github.com/m34dev/dolibarr-module-auto-incoterms/raw/refs/heads/main/versionmodule.txt';
 
 		// Key used in llx_const table to save module status enabled/disabled (where autoincoterms is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
